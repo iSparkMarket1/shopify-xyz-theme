@@ -1,0 +1,812 @@
+{{ 'option_selection.js' | shopify_asset_url | script_tag }}
+
+<style>
+  .product-container {
+    display: flex;
+    justify-content: start;
+    flex-wrap: wrap;
+    margin: 0 auto;
+    gap: 10px;
+  }
+
+  .media > *:not(.zoom):not(.deferred-media__poster-button),
+  .media model-viewer {
+    position: static;
+  }
+</style>
+
+{%- if section.settings.enable_quick_add -%}
+  {{ 'quick-add.css' | asset_url | stylesheet_tag }}
+  <script src="{{ 'quick-add.js' | asset_url }}" defer="defer"></script>
+  <script src="{{ 'product-form.js' | asset_url }}" defer="defer"></script>
+{%- endif -%}
+{% comment %}
+<div class="page-width">
+<div class="product-container">
+{% assign metafieldValue = page.metafields.custom %}
+{% if metafieldValue != blank %}
+{% assign metafieldProduct = metafieldValue.products_fetch.value %}
+{% for metafieldProductItem in metafieldProduct.products.value %}
+{% render 'card-product',
+card_product: metafieldProductItem,
+media_aspect_ratio: section.settings.image_ratio,
+image_shape: section.settings.image_shape,
+show_secondary_image: section.settings.show_secondary_image,
+show_vendor: section.settings.show_vendor,
+show_rating: section.settings.show_rating,
+lazy_load: lazy_load,
+show_quick_add: section.settings.enable_quick_add,
+section_id: section.id
+%}
+{% endfor %}
+{% endif %}
+</div>
+</div>
+{% endcomment %}
+{% assign metafieldValue = page.metafields.custom %}
+{% if metafieldValue != blank %}
+  {% assign metafieldProduct = metafieldValue.products_fetch.value %}
+  {% for metafieldProductItem in metafieldProduct.products.value %}
+    <script>
+      var pro_json = {{ metafieldProductItem | json }}
+    </script>
+  {% endfor %}
+{% endif %}
+<div class="page-width">
+  <div class="product-container">
+    {% assign metafieldValue = page.metafields.custom %}
+    {% if metafieldValue != blank %}
+      {% assign metafieldProduct = metafieldValue.products_fetch.value %}
+      {% for metafieldProductItem in metafieldProduct.products.value %}
+        <div class="product">
+          <p>{{ metafieldProductItem.title }}</p>
+          Price:
+          <p class="product-price">{{ metafieldProductItem.price | money }}</p>
+
+          <!-- <div class="product-price">Price: {{ metafieldProductItem.price | money }}</div> -->
+          <img src="{{ metafieldProductItem | img_url: '200x200' }}" alt="Product Image">
+          <!-- Variant selection dropdown -->
+
+          {% comment %}
+          <form method="post" action="/cart/add" class="add-to-cart-form" enctype="multipart/form-data">
+          <select name="id" id="variantSelect">
+          {% for variant in metafieldProductItem.variants %}
+          <option value="{{ variant.id }}" data-price="{{ variant.price }}">
+          {{ variant.title }}
+          </option>
+          {% endfor %}
+          </select>
+          <br>
+          <input type="submit" value="ADD TO CART" class="add-to-cart-button">
+          </form>
+          {% endcomment %}
+
+          {% comment %}
+          <form method="post" action="/cart/add" class="add-to-cart-form" enctype="multipart/form-data">
+          {% if metafieldProductItem.variants.size > 1 %}
+          {% for option in metafieldProductItem.options %}
+          <label for="SingleOptionSelector-{{forloop.index0}}"> {{ option }} </label>
+          <select
+          id="SingleOptionSelector-{{forloop.index0}} selectElement"
+          name="selectElement"
+          class="single-option-selector single-option-selector-product-template product-form__input"
+          data-index="option{{forloop.index}}"
+          name="id"
+          data-url="{{ metafieldProductItem.url }}"
+          >
+          {% capture option_index %}option{{ forloop.index }}{% endcapture %}
+          {% assign option_values = metafieldProductItem.variants | map: option_index | uniq %}
+          {% for choice in option_values %}
+          <option
+          id="selectedVariantId"
+          value="{{ choice }}"
+          >
+          {{ choice }}
+          </option>
+          {% endfor %}
+          </select>
+          {% endfor %}
+          <select
+          style="display: block !important"
+          id="ProductSelect-product-template"
+          class="product-form__variants no-js"
+          name="id"
+          >
+          {% for option in metafieldProductItem.variants %}
+          <option
+          class="hw-option"
+          value="{{option.id}}"
+          data-price="{{ option.price }}"
+          >
+          {{ option.title }}
+          </option>
+          {% endfor %}
+          </select>
+          {% endif %}
+
+          <input type="hidden" name="id" value="{{ metafieldProductItem.selected_or_first_available_variant.id }}">
+          <script type="application/json">
+          {{ metafieldProductItem.variants | json }}
+          </script>
+          <input type="submit" value="ADD TO CART" class="add-to-cart-button">
+          </form>
+          {% endcomment %}
+
+          {% comment %}
+          <form method="post" action="/cart/add" class="add-to-cart-form" enctype="multipart/form-data">
+          <selected-value-find
+          data-section="{{ section.id }}"
+          data-url="{{ metafieldProductItem.url }}"
+          >
+          {%- for option in metafieldProductItem.options_with_values -%}
+          <div>
+          <label>
+          {{ option.name }}
+          </label>
+          <select>
+          {%- for value in option.values -%}
+          <option
+          value="{{ value | escape }}"
+          >
+          {{ value }}
+          </option>
+          {%- endfor -%}
+          </select>
+          </div>
+          {%- endfor -%}
+          <script type="application/json">
+          {{ metafieldProductItem.variants | json }}
+          </script>
+          </selected-value-find>
+          <input
+          type="hidden"
+          name="id"
+          value="{{ metafieldProductItem.selected_or_first_available_variant.id }}"
+          disabled
+          class="product-variant-id"
+          >
+          <input type="submit" value="ADD TO CART" class="add-to-cart-button">
+          </form>
+          {% endcomment %}
+
+          {% assign product = metafieldProductItem %}
+
+            <form
+            id="addToCartForm"
+            method="post"
+            action="/cart/add"> 
+              {% for option in product.options_with_values %}
+              <label for="{{ option.name }}">{{ option.name }}</label>
+              <select
+                class="option-select"
+                data-option="{{ option.name }}"
+                name="properties[{{ option.name }}]">
+                {% for value in option.values %}
+                  <option value="{{ value }}">{{ value }}</option>
+                {% endfor %}
+              </select>
+            {% endfor %}
+            <input
+              type="hidden"
+              name="id"
+              value="{{ product.selected_or_first_available_variant.id }}">
+            <button type="submit" id="addToCart">Add to Cart</button>
+          </form>
+        </div>
+      {% endfor %}
+    {% endif %}
+  </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+  $(document).ready(function() {
+    $('.option-select').on('change', updateVariantId);
+
+
+    $('#addToCartForm').on('submit', function(event) {
+      event.preventDefault();
+      updateVariantId();
+      var formData = new FormData(this);
+      console.log(formData, 'formDATA')
+      $.ajax({
+        url: '/cart/add.js',
+        method: 'POST',
+        processData: false,
+        contentType: false,
+        data: formData,
+        success: function(data) {
+          console.log('Product added to cart!', data);
+        },
+        error: function(error) {
+          console.error('Error:', error);
+        }
+      });
+    });
+  });
+
+  function updateVariantId() {
+    var selectedOptions = [];
+    $('.option-select').each(function() {
+      var selectedValue = $(this).val();
+      console.log(selectedValue, 'selectedvalue');
+      selectedOptions.push(selectedValue);
+    });
+
+    var selectedVariant = JSON.parse('{{ product.variants | json }}');
+
+    var variants = selectedVariant;
+    console.log(variants, "variants");
+    var matchedVariant = variants.find(variant => {
+      return variant.options.every((option, index) => option === selectedOptions[index]);
+    });
+    console.log(matchedVariant, 'matchedVariant');
+    if (matchedVariant) {
+      $('input[name="id"]').val(matchedVariant.id);
+      console.log('Selected Options (Array):', selectedOptions);
+      console.log('Selected Variant ID:', matchedVariant.id);
+    }
+  };
+</script>
+
+{% comment %}
+<script>
+const optionSelects = document.querySelectorAll('.option-select');
+function updateVariantId() {
+const selectedOptions = {};
+optionSelects.forEach(select => {
+const optionName = select.getAttribute('data-option');
+console.log(optionName,"optionName")
+const selectedValue = select.value;
+console.log(selectedValue,'selectedValue')
+selectedOptions[optionName] = selectedValue;
+});
+const selectedVariant = {{ product.variants | json }}
+if (selectedVariant) {
+document.querySelector('input[name="id"]').value = selectedVariant.id;
+console.log('Selected Options:', selectedOptions);
+console.log('Selected Variant ID:', selectedVariant.id);
+}
+}
+optionSelects.forEach(select => {
+select.addEventListener('change', updateVariantId);
+});
+
+document.getElementById('addToCartForm').addEventListener('submit', function(event) {
+event.preventDefault();
+updateVariantId()
+var formData = new FormData(this);
+
+fetch('/cart/add.js', {
+method: 'POST',
+body: formData
+})
+.then(response => response.json())
+.then(data => {
+console.log('Product added to cart!', data);
+
+})
+.catch(error => {
+console.error('Error:', error);
+
+});
+});
+</script>
+{% endcomment %}{% comment %}
+<script>
+const optionSelects = document.querySelectorAll('.option-select');
+function updateVariantId() {
+const selectedOptions = {};
+optionSelects.forEach(select => {
+const optionName = select.getAttribute('data-option');
+const selectedValue = select.value;
+console.log(selectedValue, 'selectedValue')
+selectedOptions[optionName] = selectedValue;
+});
+
+const variants = {{ product.variants | json }};
+let selectedVariantId = null;
+console.log(selectedVariantId,'selectedVariantId')
+
+for (let i = 0; i < variants.length; i++) {
+const variant = variants[i];
+console.log(variant,'variant');
+let variantMatches = true;
+
+for (const optionName in selectedOptions) {
+if (selectedOptions.hasOwnProperty(optionName)) {
+const selectedValue = selectedOptions[optionName];
+
+if (variant[optionName] !== selectedValue) {
+variantMatches = false;
+break;
+}
+}
+}
+
+if (variantMatches) {
+selectedVariantId = variant.id;
+break;
+}
+}
+
+if (selectedVariantId) {
+const valuePass = document.querySelector('input[name="id"]').value = selectedVariantId;
+console.log(valuePass,'valuePass')
+}
+}
+
+optionSelects.forEach(select => {
+select.addEventListener('change', updateVariantId);
+});
+
+document.getElementById('addToCartForm').addEventListener('submit', function(event) {
+event.preventDefault();
+updateVariantId();
+
+var formData = new FormData(this);
+
+fetch('/cart/add.js', {
+method: 'POST',
+body: formData
+})
+.then(response => response.json())
+.then(data => {
+console.log('Product added to cart!', data);
+// Handle success, such as showing a success message or updating the cart
+})
+.catch(error => {
+console.error('Error:', error);
+// Handle errors
+});
+});
+
+// Initialize variant ID on page load
+updateVariantId();
+</script>
+{% endcomment %}{% comment %}
+<script>
+const optionSelects = document.querySelectorAll('.option-select');
+
+function updateVariantId() {
+const selectedOptions = {};
+
+optionSelects.forEach(select => {
+const optionName = select.getAttribute('data-option');
+const selectedValue = select.value;
+selectedOptions[optionName] = selectedValue;
+});
+
+const variants = {{ product.variants | json }};
+
+for (let i = 0; i < variants.length; i++) {
+const variant = variants[i];
+let variantMatches = true;
+
+for (const optionName in selectedOptions) {
+if (selectedOptions.hasOwnProperty(optionName)) {
+const selectedValue = selectedOptions[optionName];
+
+if (variant[optionName] !== selectedValue) {
+variantMatches = false;
+break;
+}
+}
+}
+
+if (variantMatches) {
+document.querySelector('input[name="id"]').value = variantMatches.id;
+
+}
+}
+}
+
+optionSelects.forEach(select => {
+select.addEventListener('change', updateVariantId);
+});
+
+document.getElementById('addToCartForm').addEventListener('submit', function(event) {
+event.preventDefault();
+
+// Initialize variant ID on page load
+updateVariantId();
+var formData = new FormData(this);
+
+fetch('/cart/add.js', {
+method: 'POST',
+body: formData
+})
+.then(response => response.json())
+.then(data => {
+console.log('Product added to cart!', data);
+// Handle success, such as showing a success message or updating the cart
+})
+.catch(error => {
+console.error('Error:', error);
+// Handle errors
+});
+});
+</script>
+{% endcomment %}{% comment %}
+<script>
+// Get references to the select elements and the hidden input for variant ID
+const optionSelectors = document.querySelectorAll('select[name^="options"]');
+const variantInput = document.querySelector('input[name="id"]');
+const addToCartBtn = document.querySelector('input[type="submit"]');
+const productForm = document.getElementById('product-form');
+
+// Function to update the selected variant ID based on selected options
+function updateVariantId() {
+let selectedOptions = {};
+
+// Gather selected option values
+optionSelectors.forEach(select => {
+selectedOptions[select.name] = select.value;
+});
+
+// Find the matching variant based on selected options
+const variants = {{ product.variants | json }}; // Replace with your variant data
+const matchedVariant = variants.find(variant => {
+return variant.options.every(opt => {
+return opt in selectedOptions && selectedOptions[opt] === variant[opt];
+});
+});
+
+// Update the variant ID input value
+
+}
+
+// Function to handle form submission via AJAX
+function addToCartViaAjax(event) {
+event.preventDefault();
+
+const formData = new FormData(productForm);
+
+fetch('/cart/add.js', {
+method: 'POST',
+body: formData,
+})
+.then(response => {
+if (response.ok) {
+// Cart updated successfully, handle success message or redirect
+console.log('Product added to cart!');
+} else {
+// Handle error response
+console.error('Failed to add product to cart.');
+}
+})
+.catch(error => {
+console.error('Error adding product to cart:', error);
+});
+}
+
+// Event listener for form submission
+productForm.addEventListener('submit', addToCartViaAjax);
+
+// Event listeners for option changes
+optionSelectors.forEach(select => {
+select.addEventListener('change', updateVariantId);
+});
+
+// Initial call to set the initial variant ID when the page loads
+updateVariantId();
+</script>
+{% endcomment %}{% comment %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+var form = document.getElementById('variantForm');
+var variantsArray = JSON.parse(document.getElementById("variants").textContent);
+var radioArray = document.querySelectorAll('input[type="radio"]');
+var checkedArray = [];
+
+radioArray.forEach(function(radio) {
+radio.addEventListener('change', function () {
+var checkedValues = document.querySelectorAll('input[type="radio"]:checked');
+checkedArray = Array.from(checkedValues, function(radio) { return radio.value; });
+console.log(checkedArray);
+
+for (var l = 0; l < variantsArray.variants.length; l++) {
+if (JSON.stringify(checkedArray) === JSON.stringify(variantsArray.variants[l].options)) {
+var priceString = variantsArray.variants[l].price.toString();
+document.querySelector('.unit-price').textContent = `$${priceString.substr(0, priceString.length - 2)}`;
+break;
+}
+}
+});
+});
+
+// Add form submission logic here
+form.addEventListener('submit', function(event) {
+event.preventDefault(); // Prevent the default form submission behavior
+// Handle adding the selected variant to the cart
+var selectedVariant = /* Logic to identify the selected variant */;
+addToCart(selectedVariant); // Call the function to add the variant to the cart
+});
+
+// Function to add selected variant to the cart
+function addToCart(variant) {
+// Use your Shopify-specific logic to add the variant to the cart
+// This typically involves making an AJAX request to Shopify's cart API
+// Example: Shopify.addItem(variant);
+console.log('Adding variant to cart:', variant);
+}
+});
+</script>
+{% endcomment %}<script
+  src="https://code.jquery.com/jquery-3.3.1.min.js"
+  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+  crossorigin="anonymous"> </script>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+{% comment %}
+<script>
+$(document).ready(function() {
+$('.product .add-to-cart-form .product-form__input').on('change', function() {
+var selectedValue = $(this).parent().children('.single-option-selector');
+selectedValue.each(function() {
+var currentValue = $(this).val();
+console.log(currentValue, 'currentValue');
+});
+});
+$('.product-form__variants').on('change',function() {
+var selectedOption = $(this).val();
+console.log('Selected Value:', selectedOption);
+});
+});
+</script>
+{% endcomment %}{% comment %}
+Important ajax
+<script>
+$(document).ready(function() {
+$('.add-to-cart-form').submit(function(event) {
+event.preventDefault();
+console.log("ajax");
+var formData = $(this).serialize();
+console.log(formData,'formData');
+
+$.ajax({
+type: 'POST',
+url: '/cart/add',
+data: formData,
+success: function(response) {
+
+console.log('Item added to cart');
+
+},
+error: function(error) {
+
+console.error('Error adding item to cart', error);
+}
+});
+});
+});
+</script>
+{% endcomment %}{% schema %}
+  {
+    "name": "t:sections.main-collection-product-grid.name",
+    "class": "section",
+    "settings": [
+      {
+        "type": "range",
+        "id": "products_per_page",
+        "min": 8,
+        "max": 24,
+        "step": 4,
+        "default": 16,
+        "label": "t:sections.main-collection-product-grid.settings.products_per_page.label"
+      },
+      {
+        "type": "range",
+        "id": "columns_desktop",
+        "min": 1,
+        "max": 5,
+        "step": 1,
+        "default": 4,
+        "label": "t:sections.main-collection-product-grid.settings.columns_desktop.label"
+      },
+      {
+        "type": "header",
+        "content": "t:sections.main-collection-product-grid.settings.header__3.content"
+      },
+      {
+        "type": "select",
+        "id": "image_ratio",
+        "options": [
+          {
+            "value": "adapt",
+            "label": "t:sections.main-collection-product-grid.settings.image_ratio.options__1.label"
+          }, {
+            "value": "portrait",
+            "label": "t:sections.main-collection-product-grid.settings.image_ratio.options__2.label"
+          }, {
+            "value": "square",
+            "label": "t:sections.main-collection-product-grid.settings.image_ratio.options__3.label"
+          }
+        ],
+        "default": "adapt",
+        "label": "t:sections.main-collection-product-grid.settings.image_ratio.label"
+      }, {
+        "type": "select",
+        "id": "image_shape",
+        "options": [
+          {
+            "value": "default",
+            "label": "t:sections.all.image_shape.options__1.label"
+          },
+          {
+            "value": "arch",
+            "label": "t:sections.all.image_shape.options__2.label"
+          },
+          {
+            "value": "blob",
+            "label": "t:sections.all.image_shape.options__3.label"
+          },
+          {
+            "value": "chevronleft",
+            "label": "t:sections.all.image_shape.options__4.label"
+          }, {
+            "value": "chevronright",
+            "label": "t:sections.all.image_shape.options__5.label"
+          }, {
+            "value": "diamond",
+            "label": "t:sections.all.image_shape.options__6.label"
+          }, {
+            "value": "parallelogram",
+            "label": "t:sections.all.image_shape.options__7.label"
+          }, {
+            "value": "round",
+            "label": "t:sections.all.image_shape.options__8.label"
+          }
+        ],
+        "default": "default",
+        "label": "t:sections.all.image_shape.label",
+        "info": "t:sections.all.image_shape.info"
+      }, {
+        "type": "checkbox",
+        "id": "show_secondary_image",
+        "default": false,
+        "label": "t:sections.main-collection-product-grid.settings.show_secondary_image.label"
+      }, {
+        "type": "checkbox",
+        "id": "show_vendor",
+        "default": false,
+        "label": "t:sections.main-collection-product-grid.settings.show_vendor.label"
+      }, {
+        "type": "checkbox",
+        "id": "show_rating",
+        "default": false,
+        "label": "t:sections.main-collection-product-grid.settings.show_rating.label",
+        "info": "t:sections.main-collection-product-grid.settings.show_rating.info"
+      }, {
+        "type": "checkbox",
+        "id": "enable_quick_add",
+        "default": false,
+        "label": "t:sections.main-collection-product-grid.settings.enable_quick_buy.label"
+      }, {
+        "type": "header",
+        "content": "t:sections.main-collection-product-grid.settings.header__1.content"
+      }, {
+        "type": "checkbox",
+        "id": "enable_filtering",
+        "default": true,
+        "label": "t:sections.main-collection-product-grid.settings.enable_filtering.label",
+        "info": "t:sections.main-collection-product-grid.settings.enable_filtering.info"
+      }, {
+        "type": "select",
+        "id": "filter_type",
+        "options": [
+          {
+            "value": "horizontal",
+            "label": "t:sections.main-collection-product-grid.settings.filter_type.options__1.label"
+          }, {
+            "value": "vertical",
+            "label": "t:sections.main-collection-product-grid.settings.filter_type.options__2.label"
+          }, {
+            "value": "drawer",
+            "label": "t:sections.main-collection-product-grid.settings.filter_type.options__3.label"
+          }
+        ],
+        "default": "horizontal",
+        "label": "t:sections.main-collection-product-grid.settings.filter_type.label",
+        "info": "t:sections.main-collection-product-grid.settings.filter_type.info"
+      }, {
+        "type": "checkbox",
+        "id": "enable_sorting",
+        "default": true,
+        "label": "t:sections.main-collection-product-grid.settings.enable_sorting.label"
+      }, {
+        "type": "header",
+        "content": "t:sections.main-collection-product-grid.settings.header_mobile.content"
+      }, {
+        "type": "select",
+        "id": "columns_mobile",
+        "default": "2",
+        "label": "t:sections.main-collection-product-grid.settings.columns_mobile.label",
+        "options": [
+          {
+            "value": "1",
+            "label": "t:sections.main-collection-product-grid.settings.columns_mobile.options__1.label"
+          }, {
+            "value": "2",
+            "label": "t:sections.main-collection-product-grid.settings.columns_mobile.options__2.label"
+          }
+        ]
+      }, {
+        "type": "header",
+        "content": "t:sections.all.padding.section_padding_heading"
+      }, {
+        "type": "range",
+        "id": "padding_top",
+        "min": 0,
+        "max": 100,
+        "step": 4,
+        "unit": "px",
+        "label": "t:sections.all.padding.padding_top",
+        "default": 36
+      }, {
+        "type": "range",
+        "id": "padding_bottom",
+        "min": 0,
+        "max": 100,
+        "step": 4,
+        "unit": "px",
+        "label": "t:sections.all.padding.padding_bottom",
+        "default": 36
+      }
+    ]
+  }
+{% endschema %}
+
+
+
+{% assign targetCollectionHandles = 'wheels-tires,audio' | split: ',' %}
+
+{% for collectionHandle in targetCollectionHandles %}
+  {% assign currentCollection = collections[collectionHandle] %}
+  {% assign currentCollectionItem = %}
+
+  <p>{{ currentCollection.metafields.custom.subcategory_meta.value | json }}</p>
+
+
+
+{% endfor %}
+{% comment %}
+<form
+    class="addToCartForm"
+    method="post"
+    action="/cart/add" style="z-index: 999">
+    <input
+        type="hidden"
+        name="id"
+        value="{{ card_product.selected_or_first_available_variant.id }}">
+    <button type="submit" class="addToCartButton">Buy Now</button>
+</form>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+    $(document).on('submit', '.addToCartForm', function (event) {
+        event.preventDefault();
+        console.log('Form submitted:', $(this));
+
+        var formData = $(this).serialize();
+        console.log('Submitting data:', formData);
+
+        $.ajax({
+            url: '/cart/add.js',
+            method: 'POST',
+            data: formData,
+            dataType: 'json',
+            success: function (response) {
+                console.log('Product added to cart:', response);
+                // window.location.href = '/checkout';
+            },
+            error: function (xhr, status, error) {
+                console.error('Error:', xhr.responseText || error);
+            }
+        });
+    });
+});
+</script>
+{% endcomment %}
