@@ -1,0 +1,71 @@
+{% schema %}
+{
+  "name": "Custom Rich Text with Meter",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Limited Time Offer!"
+    },
+    {
+      "type": "richtext",
+      "id": "description",
+      "label": "Description",
+      "default": "<p>Get it before it's gone. Limited stock available!</p>"
+    },
+    {
+      "type": "select",
+      "id": "text_alignment",
+      "label": "Text alignment",
+      "default": "center",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "right", "label": "Right" }
+      ]
+    },
+    {
+      "type": "number",
+      "id": "meter_value",
+      "label": "Meter value (%)",
+      "default": 60,
+      "min": 0,
+      "max": 100
+    },
+    {
+      "type": "text",
+      "id": "meter_label",
+      "label": "Meter label",
+      "default": "60% Sold"
+    },
+    {
+      "type": "color",
+      "id": "meter_color",
+      "label": "Meter color",
+      "default": "#10b981"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Custom Rich Text with Meter",
+      "category": "Custom Sections"
+    }
+  ]
+}
+{% endschema %}
+
+<div class="custom-rich-text text-{{ section.settings.text_alignment }} py-8 px-4">
+  <h2 class="text-2xl font-bold mb-2">{{ section.settings.heading }}</h2>
+  <div class="prose max-w-none mb-4">{{ section.settings.description }}</div>
+
+  <div class="meter mb-1">
+    <div class="h-4 w-full bg-gray-200 rounded-full overflow-hidden">
+      <div 
+        class="h-4 rounded-full transition-all duration-500"
+        style="width: {{ section.settings.meter_value }}%; background-color: {{ section.settings.meter_color }};">
+      </div>
+    </div>
+    <div class="text-sm font-medium mt-1">{{ section.settings.meter_label }}</div>
+  </div>
+</div>
