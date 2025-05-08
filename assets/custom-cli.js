@@ -16,4 +16,5 @@ ji aaya
 kjiuhu
 jh
 j
+pahle abhi main editor me change kr rha hu toh kr skta huna
 without pull liye pahle vs code me change kr diya hain
