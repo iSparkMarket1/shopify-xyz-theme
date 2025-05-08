@@ -1,0 +1,72 @@
+{% schema %}
+{
+  "name": "Custom Testimonials",
+  "tag": "section",
+  "class": "custom-testimonials-section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "section_heading",
+      "label": "Section Heading",
+      "default": "What Our Customers Say"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "testimonial",
+      "name": "Testimonial",
+      "settings": [
+        {
+          "type": "text",
+          "id": "customer_name",
+          "label": "Customer Name",
+          "default": "John Doe"
+        },
+        {
+          "type": "textarea",
+          "id": "testimonial_text",
+          "label": "Testimonial",
+          "default": "This is the best store I've ever shopped from!"
+        },
+        {
+          "type": "image_picker",
+          "id": "customer_image",
+          "label": "Customer Image"
+        }
+      ]
+    }
+  ],
+  "max_blocks": 6,
+  "presets": [
+    {
+      "name": "Custom Testimonials",
+      "category": "Testimonials",
+      "blocks": [
+        {
+          "type": "testimonial"
+        },
+        {
+          "type": "testimonial"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}
+
+<div class="py-10 bg-gray-50">
+  <div class="max-w-6xl mx-auto px-4 text-center">
+    <h2 class="text-3xl font-bold mb-8">{{ section.settings.section_heading }}</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      {% for block in section.blocks %}
+        <div class="bg-white shadow-md rounded-xl p-6">
+          {% if block.settings.customer_image != blank %}
+            <img src="{{ block.settings.customer_image | img_url: '100x100' }}" alt="{{ block.settings.customer_name }}" class="w-16 h-16 rounded-full mx-auto mb-4">
+          {% endif %}
+          <p class="text-gray-700 italic mb-3">"{{ block.settings.testimonial_text }}"</p>
+          <p class="text-sm font-semibold text-gray-900">{{ block.settings.customer_name }}</p>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
