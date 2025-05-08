@@ -16,3 +16,5 @@ ji aaya
 kjiuhu
 jh
 j
+
+pahle agar editor me change kroge shopify ke toh tumhe pahle pull lena parega kyuki otherwise conflict hoga
