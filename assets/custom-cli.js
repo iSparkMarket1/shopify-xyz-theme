@@ -16,3 +16,4 @@ ji aaya
 kjiuhu
 jh
 j
+maine pahle editor me code likha hain or idhr  pull nhi liya hain toh kya kar skte hain
