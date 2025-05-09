@@ -1,1 +1,62 @@
-<h1>hello ji phone </h1>
+{% stylesheet %}
+.faq-item { margin-bottom: 1rem; }
+.faq-question { font-weight: bold; cursor: pointer; }
+.faq-answer { display: none; padding-top: 0.5rem; }
+.faq-item.open .faq-answer { display: block; }
+{% endstylesheet %}
+
+<div class="faq-section">
+  <h2>{{ section.settings.heading }}</h2>
+  
+  <div class="faq-items">
+    {% for block in section.blocks %}
+      <div class="faq-item" id="faq-{{ block.id }}">
+        <div class="faq-question" onclick="this.parentElement.classList.toggle('open')">
+          {{ block.settings.question }}
+        </div>
+        <div class="faq-answer">
+          {{ block.settings.answer }}
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "FAQ Section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Section Heading",
+      "default": "Frequently Asked Questions"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "faq",
+      "name": "FAQ",
+      "settings": [
+        {
+          "type": "text",
+          "id": "question",
+          "label": "Question"
+        },
+        {
+          "type": "textarea",
+          "id": "answer",
+          "label": "Answer"
+        }
+      ]
+    }
+  ],
+  "max_blocks": 10,
+  "presets": [
+    {
+      "name": "FAQ Section",
+      "category": "Custom"
+    }
+  ]
+}
+{% endschema %}
