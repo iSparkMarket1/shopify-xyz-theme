@@ -11,7 +11,7 @@
   <div class="faq-items">
     {% for block in section.blocks %}
       <div class="faq-item" id="faq-{{ block.id }}">
-        <div class="faq-question" onclick="this.parentElement.classList.toggle('open')">
+        <div class="custom-faq-hain-kuchh faq-question" onclick="this.parentElement.classList.toggle('open')">
           {{ block.settings.question }}
         </div>
         <div class="faq-answer">
